@@ -1,6 +1,7 @@
 #!/bin/bash
 
-GOOS=linux GOARCH=amd64 go build 
+protoc -I .  proto/consignment/consignment.proto \
+   --go_out=plugins=micro:${GOPATH}/src/github.com/renegmed/go-micros-shippy/consignment-service 
 
 docker build -t consignment-service .
 
