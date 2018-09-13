@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	pb "microservices-evalentine/consignment-service/proto/consignment"
 	"os"
 
+	pb "github.com/renegmed/go-micros-shippy/consignment-service/proto/consignment"
 	"google.golang.org/grpc"
 )
 
@@ -51,4 +51,13 @@ func main() {
 		log.Fatalf("Could not create consignment: %v", err)
 	}
 	log.Printf("Created: %t", r.Created)
+
+	getAll, err := client.GetConsignments(context.Background(), &pb.GetRequest{})
+	if err != nil {
+		log.Fatalf("Could not list consignments: %v", err)
+	}
+	for _, v := range getAll.Consignments {
+		log.Println(v)
+	}
+
 }
