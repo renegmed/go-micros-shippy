@@ -1,0 +1,23 @@
+Tutorials: Create Versatile Microservices in Golang
+ https://dzone.com/articles/create-versatile-microservices-in-golang-part-1
+ https://dzone.com/articles/create-versatile-microservices-in-golang-part-10-s?fromrel=true
+
+Souce code: https://github.com/ewanvalentine/shippy
+
+PART 1: Getting started, gRPC
+
+PART 2: Docker and micro 
+
+PART 3: Docker compose and datastores 
+
+PART 4: Authentication and JWT 
+
+PART 5: Event brokering 
+
+PART 6: Web Clients 
+
+PART 7: Terraform 
+
+PART 8: Kubernetes  
+
+PART 9: CircleCI
