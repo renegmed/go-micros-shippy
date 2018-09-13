@@ -21,3 +21,11 @@ PART 7: Terraform
 PART 8: Kubernetes  
 
 PART 9: CircleCI
+
+
+
+PART 2: Go-micro
+
+Go-micro is used here for service discovery
+
+go get -u github.com/micro/protobuf/{proto,protoc-gen-go}
