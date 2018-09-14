@@ -29,3 +29,18 @@ PART 2: Go-micro
 Go-micro is used here for service discovery
 
 go get -u github.com/micro/protobuf/{proto,protoc-gen-go}
+
+
+
+PART 3 Docker compose
+
+$ docker-compose build
+
+$ docker-compose up -datastores
+
+$ docker stop $(docker ps -qa)
+
+
+$ docker-compose run consignment-cli 
+
+
