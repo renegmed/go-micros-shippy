@@ -2,60 +2,54 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	micro "github.com/micro/go-micro"
 	pb "github.com/renegmed/go-micros-shippy/vessel-service/proto/vessel"
 )
 
-type Repository interface {
-	FindAvailable(*pb.Specification) (*pb.Vessel, error)
-}
+const (
+	defaultHost = "localhost:27017"
+)
 
-type VesselRepository struct {
-	vessels []*pb.Vessel
-}
-
-// FindAvailable - checks a specfication against a map of vessels,
-// if capacity and max weight are below a vessels capacity and max weight,
-// then return that vessel.
-func (repo *VesselRepository) FindAvailable(spec *pb.Specification) (*pb.Vessel, error) {
-	for _, vessel := range repo.vessels {
-		if spec.Capacity <= vessel.Capacity && spec.MaxWeight <= vessel.MaxWeight {
-			return vessel, nil
-		}
+func createDummyData(repo Repository) {
+	defer repo.Close()
+	vessels := []*pb.Vessel{
+		{Id: "vessel001", Name: "Kane's Salty Secret", MaxWeight: 200000, Capacity: 500},
 	}
-	return nil, errors.New("No vessel found by that spec")
-}
-
-// Our grpc service handler
-type service struct {
-	repo Repository
-}
-
-func (s *service) FindAvailable(ctx context.Context, req *pb.Specification, res *pb.Response) error {
-	fmt.Println("FindAvailable method is called...")
-	// Find the next available vessel
-	vessel, err := s.repo.FindAvailable(req)
-	if err != nil {
-		return err
+	for _, v := range vessels {
+		repo.Create(v)
 	}
-
-	// Set the vessel as part of the response message type
-	res.Vessel = vessel
-	return nil
 }
 
 func main() {
-	vessels := []*pb.Vessel{
-		&pb.Vessel{Id: "vessel001", Name: "Boaty McBoatface", MaxWeight: 20000, Capacity: 100},
-		&pb.Vessel{Id: "vessel002", Name: "On The Same Boat", MaxWeight: 80000, Capacity: 300},
-		&pb.Vessel{Id: "vessel003", Name: "Rocking Boat", MaxWeight: 150000, Capacity: 400},
-	}
-	repo := &VesselRepository{vessels}
+	fmt.Println("Starting vessel server now...")
 
+	// Database host from the environment variables
+	host := os.Getenv("DB_HOST")
+
+	if host == "" {
+		host = defaultHost
+	}
+
+	session, err := CreateSession(host)
+
+	// Mgo creates a 'master' session, we need to end that session
+	// before the main function closes.
+	defer session.Close()
+
+	if err != nil {
+		// We're wrapping the error returned from our CreateSession
+		// here to add some context to the error
+		log.Panicf("Could not connect to datastore with host %s - %v", host, err)
+	}
+
+	repo := &VesselRepository{session.Copy()}
+	createDummyData(repo)
+
+	// Create a new service. Optionally include some options here.
 	srv := micro.NewService(
 		micro.Name("go.micro.srv.vessel"),
 		micro.Version("latest"),
@@ -64,7 +58,7 @@ func main() {
 	srv.Init()
 
 	// Register our implementation with
-	pb.RegisterVesselServiceHandler(srv.Server(), &service{repo})
+	pb.RegisterVesselServiceHandler(srv.Server(), &service{session})
 
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)

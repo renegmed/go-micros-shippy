@@ -34,7 +34,9 @@ go get -u github.com/micro/protobuf/{proto,protoc-gen-go}
 
 PART 3 Docker compose
 
-$ docker-compose build
+$ docker-compose build  
+
+$ docker-compose build --no-cache
 
 $ docker-compose up -datastores
 
