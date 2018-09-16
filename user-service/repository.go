@@ -2,6 +2,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
 	pb "github.com/renegmed/go-micros-shippy/user-service/proto/user"
 )
@@ -18,6 +20,7 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) GetAll() ([]*pb.User, error) {
+	log.Println("Start getting all users ....")
 	var users []*pb.User
 	if err := repo.db.Find(&users).Error; err != nil {
 		return nil, err
@@ -26,6 +29,7 @@ func (repo *UserRepository) GetAll() ([]*pb.User, error) {
 }
 
 func (repo *UserRepository) Get(id string) (*pb.User, error) {
+	log.Println("Start getting a user ....")
 	var user *pb.User
 	user.Id = id
 	if err := repo.db.First(&user).Error; err != nil {
@@ -35,13 +39,16 @@ func (repo *UserRepository) Get(id string) (*pb.User, error) {
 }
 
 func (repo *UserRepository) Create(user *pb.User) error {
+	log.Println("Start creating a user....")
 	if err := repo.db.Create(&user).Error; err != nil {
 		return err
 	}
+	log.Printf("Create user %v\n", user)
 	return nil
 }
 
 func (repo *UserRepository) GetByEmailAndPassword(user *pb.User) (*pb.User, error) {
+	log.Println("Start getting email and password ....")
 	if err := repo.db.First(&user).Error; err != nil {
 		return nil, err
 	}
